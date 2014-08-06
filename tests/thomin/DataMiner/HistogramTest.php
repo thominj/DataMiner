@@ -53,4 +53,16 @@ class HistogramTest extends \PHPUnit_Framework_TestCase
 		}
 		$this->assertEquals($expected_result, $result);
 	}
+	
+	public function testOnlineMode()
+	{
+		$histogram = new Histogram($this->_bins, $this->_data);
+		$histogram->addData($this->_data);
+		foreach($this->_expected_result as $key => $value)
+		{
+			$expected_result[$key] = $value * 2;
+		}
+		$result = $histogram->getResult();
+		$this->assertEquals($expected_result, $result);
+	}
 }
