@@ -67,37 +67,12 @@ class Histogram {
 	public function addData(array $data)
 	{
 		if(empty($this->_bins)) throw new \Exception('A bins array must be set before adding data.');
-
+		
 		// Loop over data
 		foreach($data as $x)
 		{
-			// Loop over bins array 
-			for($i = 0; $i < $this->_nbins; ++$i)
-			{
-				// Get this bin's left endpoint
-				$bin = $this->_bins[$i];
-				// If this is the last bin, and we still haven't found a bin larger than x, then store it here
-				if($i == $this->_nbins - 1 && $x >= $bin)
-				{
-					$this->_result[$bin]++;
-				}
-				// Otherwise, if x is less than the left endpoint,
-				else if ($x < $bin)
-				{
-					// and this is the first bin, we have to store it in the "less" bin
-					if($i == 0) 
-					{
-						$bin = 'less';
-					}
-					// otherwise, it should be stored in the previous bin
-					else
-					{
-						$bin = $this->_bins[$i - 1];
-					}
-					$this->_result[$bin]++;
-					break;	// Skip to the next data point
-				}
-			}
+			$bin = $this->_mapToBin($x);
+			$this->_result[$bin]++;
 		}
 	}
 
@@ -126,5 +101,38 @@ class Histogram {
 	public function getResult()
 	{
 		return $this->_result;
+	}
+	
+	//-----------------------------------------------------------------------------
+	
+	private function _mapToBin($x)
+	{
+		// Loop over bins array
+		for($i = 0; $i < $this->_nbins; ++$i)
+		{
+			// Get this bin's left endpoint
+			$bin = $this->_bins[$i];
+	
+			// If this is the last bin, and we still haven't found a bin larger than x, then store it here
+			if($i == $this->_nbins - 1 && $x >= $bin)
+			{
+				return $bin;
+			}
+			// Otherwise, if x is less than the left endpoint,
+			else if ($x < $bin)
+			{
+				// and this is the first bin, we have to store it in the "less" bin
+				if($i == 0)
+				{
+					$bin = 'less';
+				}
+				// otherwise, it should be stored in the previous bin
+				else
+				{
+					$bin = $this->_bins[$i - 1];
+				}
+				return $bin;
+			}
+		}
 	}
 }
