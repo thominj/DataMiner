@@ -1,4 +1,4 @@
 DataMiner
 ==========
 
-A set of tools for common datamining operations in PHP.
+A set of tools for common data mining operations in PHP.
