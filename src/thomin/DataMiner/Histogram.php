@@ -66,6 +66,8 @@ class Histogram {
 	 */
 	public function addData(array $data)
 	{
+		if(empty($this->_bins)) throw new \Exception('A bins array must be set before adding data.');
+
 		// Loop over data
 		foreach($data as $x)
 		{

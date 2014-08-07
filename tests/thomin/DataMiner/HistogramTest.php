@@ -6,6 +6,7 @@ class HistogramTest extends \PHPUnit_Framework_TestCase
 {
 	private $_bins;
 	private $_data;
+	private $_expected_result;
 	
 	public function setUp() 
 	{
@@ -21,6 +22,21 @@ class HistogramTest extends \PHPUnit_Framework_TestCase
 				5		=> 3,
 		); 
 	}
+
+	//-----------------------------------------------------------------------------	
+	
+	/**
+	 * @expectedException Exception
+	 * @expectedExceptionMessage A bins array must be set before adding data.
+	 */
+	public function testNoBins()
+	{
+		$histogram = new Histogram();
+		$histogram->addData($this->_data);
+		$result = $histogram->getResult();
+	}
+
+	//-----------------------------------------------------------------------------	
 	
 	public function testSingleUse()
 	{		
@@ -28,6 +44,8 @@ class HistogramTest extends \PHPUnit_Framework_TestCase
 		$result = $histogram->getResult();
 		$this->assertEquals($this->_expected_result, $result);
 	}
+
+	//-----------------------------------------------------------------------------	
 	
 	public function testWithPreloadedResult()
 	{
@@ -53,7 +71,9 @@ class HistogramTest extends \PHPUnit_Framework_TestCase
 		}
 		$this->assertEquals($expected_result, $result);
 	}
-	
+
+	//-----------------------------------------------------------------------------
+
 	public function testOnlineMode()
 	{
 		$histogram = new Histogram($this->_bins, $this->_data);
