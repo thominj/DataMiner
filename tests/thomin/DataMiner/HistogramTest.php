@@ -11,7 +11,7 @@ class HistogramTest extends \PHPUnit_Framework_TestCase
 	public function setUp() 
 	{
 		$this->_bins = array(0, 1, 2, 3, 4, 5);
-		$this->_data = $data = array(-1, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6);
+		$this->_data = array(-1, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6);
 		$this->_expected_result = array(
 				'less' 	=> 1,
 				0		=> 2,
