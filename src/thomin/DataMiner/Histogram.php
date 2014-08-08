@@ -15,11 +15,11 @@ class Histogram {
 	private $_nbins = 0;		// The number of bins
 	
 	/**
-	 * Constructor. The first (optional) argument is the bins array, and the second (optional)
-	 * argument is a data set.
+	 * Constructor. If bins and data are passed as arguments, it will
+	 * process the data.
 	 * 
-	 * @param array $bins
-	 * @param array $data
+	 * @param array $bins - (optional) array of bins
+	 * @param array $data - (optional) array of data
 	 */
 	public function __construct(array $bins = array(), array $data = array() )
 	{
@@ -44,6 +44,8 @@ class Histogram {
 	 *	…
 	 *	b_N: b_N <= x < infinity
 	 *
+	 *	@param array $bins - the array of bins, left-inclusive, with the last bin representing the right
+	 *                       boundary of the last bin
 	 */
 	public function setBins(array $bins)
 	{
@@ -63,12 +65,13 @@ class Histogram {
 	 * Adds an array of data to the histogram. A bins array must be specified first.
 	 * As the data is added, it is binned. To add data in online mode, simply call addData
 	 * repeatedly with new datasets.
+	 * 
+	 * @param array $data - the data array. Keys are ignored.
 	 */
 	public function addData(array $data)
 	{
 		if(empty($this->_bins)) throw new \Exception('A bins array must be set before adding data.');
-		
-		// Loop over data
+
 		foreach($data as $x)
 		{
 			$bin = $this->_mapToBin($x);
@@ -81,22 +84,24 @@ class Histogram {
 	/**
 	 * Preloads a result array, for use in online mode.
 	 * Any new histogram counts will be added to the preloaded results.
-	 * The array keys of the preloaded array must match the values of the bins array.
+	 * 
+	 * @param array $result - an array of a previous result. The array keys must match the bins
+	 *                        array values, with the addition of a "less" bin.
 	 */
 	public function preload($result)
 	{
 		// @todo: check that array keys are correct
+		// @todo: override bins with array keys? Not sure if that is a good thing to do.
 		$this->_result = $result;
 	}
 
 	//-----------------------------------------------------------------------------
 	
 	/**
-	 * Returns the result array. Each key corresponds to the matching
-	 * index in the bins array. Each value is the integer number of data
-	 * points that fall within that bin.
+	 * Returns the result array.
 	 * 
-	 * @return array
+	 * @return array $result - The result of the binning operation. Keys are bins,
+	 *                         and values are the data counts for each bin.
 	 */
 	public function getResult()
 	{
