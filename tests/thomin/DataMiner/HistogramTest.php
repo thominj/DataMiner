@@ -49,7 +49,8 @@ class HistogramTest extends \PHPUnit_Framework_TestCase
 	
 	public function testWithPreloadedResult()
 	{
-		$histogram = new Histogram($this->_bins);
+		// We don't need to set bins, since the preloaded result will have them.
+		$histogram = new Histogram();
 		
 		// Make a fake previous result with the correct keys (they have to match expected result keys)
 		foreach ($this->_expected_result as $key => $value)

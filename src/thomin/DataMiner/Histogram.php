@@ -49,6 +49,10 @@ class Histogram {
 	 */
 	public function setBins(array $bins)
 	{
+		// Remove the 'less' bin if it exists so it doesn't mess up sorting.
+		$less_bin = array_search('less', $bins, TRUE);
+		if($less_bin !== FALSE) unset($bins[$less_bin]);
+		
 		sort($bins);	// Sort bins and re-key
 		$this->_bins = $bins;
 		$this->_nbins = count($bins);
@@ -83,15 +87,15 @@ class Histogram {
 	
 	/**
 	 * Preloads a result array, for use in online mode.
-	 * Any new histogram counts will be added to the preloaded results.
+	 * This overwrites any results that already exists, and uses the 
+	 * array keys to define the new bins.
 	 * 
-	 * @param array $result - an array of a previous result. The array keys must match the bins
-	 *                        array values, with the addition of a "less" bin.
+	 * @param array $result - an array of a previous result.
 	 */
 	public function preload($result)
 	{
-		// @todo: check that array keys are correct
-		// @todo: override bins with array keys? Not sure if that is a good thing to do.
+		$bins = array_keys($result);
+		$this->setBins($bins);
 		$this->_result = $result;
 	}
 
