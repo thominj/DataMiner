@@ -95,13 +95,24 @@ class DataBinner {
 	
 	/**
 	 * Preloads a result array, for use in online mode.
-	 * Any new histogram counts will be added to the preloaded results.
+	 * Any new data statistics will be accumulated with the preloaded results.
 	 * The array keys of the preloaded array must match the values of the bins array.
+	 * 
+	 * Warning: this overwrites any existing results.
 	 */
-	public function preload($result)
+	public function preload($result_array)
 	{
 		// @todo: check that array keys are correct
-		$this->_result = $result;
+
+		$this->_result = array();
+		foreach($result_array as $bin => $result )
+		{
+			$this->_result[$bin]['mean'] = $result['mean'];
+			$n = $this->_result[$bin]['n'] = $result['n'];
+			
+			// Convert the variance back to S
+			$this->_result[$bin]['s'] = $result['var'] * ($n-1);
+		}
 	}
 
 	//-----------------------------------------------------------------------------
