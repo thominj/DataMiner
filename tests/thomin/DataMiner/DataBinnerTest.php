@@ -94,7 +94,18 @@ class DataBinnerTest extends \PHPUnit_Framework_TestCase
 	
 	public function testOnlineMode()
 	{
-
+		$dataBinner = new DataBinner($this->_bins);
+		$dataBinner->addData($this->_data_set_1);
+		$dataBinner->addData($this->_data_set_2);
+		$result = $dataBinner->getResult();
+		$this->_checkResults($this->_expected_result_data_set_1_and_2, $result);
+		
+		// The order shouldn't matter
+		$dataBinner = new DataBinner($this->_bins);
+		$dataBinner->addData($this->_data_set_2);
+		$dataBinner->addData($this->_data_set_1);
+		$result = $dataBinner->getResult();
+		$this->_checkResults($this->_expected_result_data_set_1_and_2, $result);
 	}
 	
 	private function _checkResults($expected_result_array, $result_array)
