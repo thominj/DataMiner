@@ -48,6 +48,10 @@ class DataBinner {
 	 */
 	public function setBins(array $bins)
 	{
+		// Remove the 'less' bin if it exists so it doesn't mess up sorting.
+		$less_bin = array_search('less', $bins, TRUE);
+		if($less_bin !== FALSE) unset($bins[$less_bin]);
+		
 		sort($bins);	// Sort bins and re-key
 		$this->_bins = $bins;
 		$this->_nbins = count($bins);
@@ -96,15 +100,15 @@ class DataBinner {
 	/**
 	 * Preloads a result array, for use in online mode.
 	 * Any new data statistics will be accumulated with the preloaded results.
-	 * The array keys of the preloaded array must match the values of the bins array.
+	 * The array keys of the preloaded array will be used as the new bins array.
 	 * 
 	 * Warning: this overwrites any existing results.
 	 */
 	public function preload($result_array)
 	{
-		// @todo: check that array keys are correct
+		$bins = array_keys($result_array);
+		$this->setBins($bins);
 
-		$this->_result = array();
 		foreach($result_array as $bin => $result )
 		{
 			$this->_result[$bin]['mean'] = $result['mean'];

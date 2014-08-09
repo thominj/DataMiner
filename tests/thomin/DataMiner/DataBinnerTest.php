@@ -85,7 +85,8 @@ class DataBinnerTest extends \PHPUnit_Framework_TestCase
 	
 	public function testWithPreloadedResult()
 	{
-		$dataBinner = new DataBinner($this->_bins);
+		// No need to set bins since preloaded result has them
+		$dataBinner = new DataBinner();
 		$dataBinner->preload($this->_expected_result_data_set_1);
 		$dataBinner->addData($this->_data_set_2);
 		$result = $dataBinner->getResult();
