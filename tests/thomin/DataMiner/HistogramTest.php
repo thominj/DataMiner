@@ -6,11 +6,12 @@ class HistogramTest extends \PHPUnit_Framework_TestCase
 {
 	private $_bins;
 	private $_data;
+	private $_expected_result;
 	
 	public function setUp() 
 	{
 		$this->_bins = array(0, 1, 2, 3, 4, 5);
-		$this->_data = $data = array(-1, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6);
+		$this->_data = array(-1, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6);
 		$this->_expected_result = array(
 				'less' 	=> 1,
 				0		=> 2,
@@ -21,6 +22,21 @@ class HistogramTest extends \PHPUnit_Framework_TestCase
 				5		=> 3,
 		); 
 	}
+
+	//-----------------------------------------------------------------------------	
+	
+	/**
+	 * @expectedException Exception
+	 * @expectedExceptionMessage A bins array must be set before adding data.
+	 */
+	public function testNoBins()
+	{
+		$histogram = new Histogram();
+		$histogram->addData($this->_data);
+		$result = $histogram->getResult();
+	}
+
+	//-----------------------------------------------------------------------------	
 	
 	public function testSingleUse()
 	{		
@@ -28,10 +44,13 @@ class HistogramTest extends \PHPUnit_Framework_TestCase
 		$result = $histogram->getResult();
 		$this->assertEquals($this->_expected_result, $result);
 	}
+
+	//-----------------------------------------------------------------------------	
 	
 	public function testWithPreloadedResult()
 	{
-		$histogram = new Histogram($this->_bins);
+		// We don't need to set bins, since the preloaded result will have them.
+		$histogram = new Histogram();
 		
 		// Make a fake previous result with the correct keys (they have to match expected result keys)
 		foreach ($this->_expected_result as $key => $value)
@@ -53,7 +72,9 @@ class HistogramTest extends \PHPUnit_Framework_TestCase
 		}
 		$this->assertEquals($expected_result, $result);
 	}
-	
+
+	//-----------------------------------------------------------------------------
+
 	public function testOnlineMode()
 	{
 		$histogram = new Histogram($this->_bins, $this->_data);

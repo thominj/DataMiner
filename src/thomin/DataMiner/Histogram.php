@@ -15,11 +15,11 @@ class Histogram {
 	private $_nbins = 0;		// The number of bins
 	
 	/**
-	 * Constructor. The first (optional) argument is the bins array, and the second (optional)
-	 * argument is a data set.
+	 * Constructor. If bins and data are passed as arguments, it will
+	 * process the data.
 	 * 
-	 * @param array $bins
-	 * @param array $data
+	 * @param array $bins - (optional) array of bins
+	 * @param array $data - (optional) array of data
 	 */
 	public function __construct(array $bins = array(), array $data = array() )
 	{
@@ -44,9 +44,15 @@ class Histogram {
 	 *	…
 	 *	b_N: b_N <= x < infinity
 	 *
+	 *	@param array $bins - the array of bins, left-inclusive, with the last bin representing the right
+	 *                       boundary of the last bin
 	 */
 	public function setBins(array $bins)
 	{
+		// Remove the 'less' bin if it exists so it doesn't mess up sorting.
+		$less_bin = array_search('less', $bins, TRUE);
+		if($less_bin !== FALSE) unset($bins[$less_bin]);
+		
 		sort($bins);	// Sort bins and re-key
 		$this->_bins = $bins;
 		$this->_nbins = count($bins);
@@ -63,39 +69,17 @@ class Histogram {
 	 * Adds an array of data to the histogram. A bins array must be specified first.
 	 * As the data is added, it is binned. To add data in online mode, simply call addData
 	 * repeatedly with new datasets.
+	 * 
+	 * @param array $data - the data array. Keys are ignored.
 	 */
 	public function addData(array $data)
 	{
-		// Loop over data
+		if(empty($this->_bins)) throw new \Exception('A bins array must be set before adding data.');
+
 		foreach($data as $x)
 		{
-			// Loop over bins array 
-			for($i = 0; $i < $this->_nbins; ++$i)
-			{
-				// Get this bin's left endpoint
-				$bin = $this->_bins[$i];
-				// If this is the last bin, and we still haven't found a bin larger than x, then store it here
-				if($i == $this->_nbins - 1 && $x >= $bin)
-				{
-					$this->_result[$bin]++;
-				}
-				// Otherwise, if x is less than the left endpoint,
-				else if ($x < $bin)
-				{
-					// and this is the first bin, we have to store it in the "less" bin
-					if($i == 0) 
-					{
-						$bin = 'less';
-					}
-					// otherwise, it should be stored in the previous bin
-					else
-					{
-						$bin = $this->_bins[$i - 1];
-					}
-					$this->_result[$bin]++;
-					break;	// Skip to the next data point
-				}
-			}
+			$bin = $this->_mapToBin($x);
+			$this->_result[$bin]++;
 		}
 	}
 
@@ -103,26 +87,61 @@ class Histogram {
 	
 	/**
 	 * Preloads a result array, for use in online mode.
-	 * Any new histogram counts will be added to the preloaded results.
-	 * The array keys of the preloaded array must match the values of the bins array.
+	 * This overwrites any results that already exists, and uses the 
+	 * array keys to define the new bins.
+	 * 
+	 * @param array $result - an array of a previous result.
 	 */
 	public function preload($result)
 	{
-		// @todo: check that array keys are correct
+		$bins = array_keys($result);
+		$this->setBins($bins);
 		$this->_result = $result;
 	}
 
 	//-----------------------------------------------------------------------------
 	
 	/**
-	 * Returns the result array. Each key corresponds to the matching
-	 * index in the bins array. Each value is the integer number of data
-	 * points that fall within that bin.
+	 * Returns the result array.
 	 * 
-	 * @return array
+	 * @return array $result - The result of the binning operation. Keys are bins,
+	 *                         and values are the data counts for each bin.
 	 */
 	public function getResult()
 	{
 		return $this->_result;
+	}
+	
+	//-----------------------------------------------------------------------------
+	
+	private function _mapToBin($x)
+	{
+		// Loop over bins array
+		for($i = 0; $i < $this->_nbins; ++$i)
+		{
+			// Get this bin's left endpoint
+			$bin = $this->_bins[$i];
+	
+			// If this is the last bin, and we still haven't found a bin larger than x, then store it here
+			if($i == $this->_nbins - 1 && $x >= $bin)
+			{
+				return $bin;
+			}
+			// Otherwise, if x is less than the left endpoint,
+			else if ($x < $bin)
+			{
+				// and this is the first bin, we have to store it in the "less" bin
+				if($i == 0)
+				{
+					$bin = 'less';
+				}
+				// otherwise, it should be stored in the previous bin
+				else
+				{
+					$bin = $this->_bins[$i - 1];
+				}
+				return $bin;
+			}
+		}
 	}
 }
