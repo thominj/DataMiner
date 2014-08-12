@@ -1,6 +1,6 @@
 <?php
 
-namespace thomin\DataMiner;
+namespace thominj\DataMiner;
 
 /**
  * Sorts an array of ordered pairs (a, b) of data by sorting a into bins,

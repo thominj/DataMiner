@@ -1,5 +1,5 @@
 {
-    "name": "thomin/DataMiner",
+    "name": "thominj/DataMiner",
     "description": "A set of tools for common data mining operations in PHP.",
     "keywords": [
         "data",
@@ -20,7 +20,7 @@
     },
     "autoload": {
         "psr-0": {
-            "thomin\\DataMiner": "src"
+            "thominj\\DataMiner": "src"
         }
     }
 }
