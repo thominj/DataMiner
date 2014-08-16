@@ -1,6 +1,6 @@
 <?php
 
-namespace thomin\DataMiner;
+namespace thominj\DataMiner;
 
 class HistogramTest extends \PHPUnit_Framework_TestCase 
 {

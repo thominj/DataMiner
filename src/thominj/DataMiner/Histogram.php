@@ -1,6 +1,6 @@
 <?php
 
-namespace thomin\DataMiner;
+namespace thominj\DataMiner;
 
 /**
  * Calculates the histogram of a dataset using either online or offline methods.
