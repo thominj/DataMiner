@@ -11,6 +11,7 @@ namespace thominj\DataMiner;
 class Histogram {
 	
 	private $_result = array();	// The result array
+	private $_less = 0;		// The number of data points that were less than the minimum
 	private $_bins = array();	// The bins array
 	private $_nbins = 0;		// The number of bins
 	
@@ -52,15 +53,18 @@ class Histogram {
 		// Remove the 'less' bin if it exists so it doesn't mess up sorting.
 		$less_bin = array_search('less', $bins, TRUE);
 		if($less_bin !== FALSE) unset($bins[$less_bin]);
-		
+		foreach($bins as &$bin)
+		{
+			$bin = (float)$bin;
+		}
 		sort($bins);	// Sort bins and re-key
 		$this->_bins = $bins;
 		$this->_nbins = count($bins);
 		
-		// Set up results array using bins as keys
-		array_unshift($bins, 'less');	// prepend the 'less' bin
-		$result = array_fill_keys($bins, 0);
+		// Set up results array and empty less counter
+		$result = array_fill(0, $this->_nbins, 0);
 		$this->_result = $result;
+		$this->_less = 0;
 	}
 	
 	//-----------------------------------------------------------------------------
@@ -79,7 +83,14 @@ class Histogram {
 		foreach($data as $x)
 		{
 			$bin = $this->_mapToBin($x);
-			$this->_result[$bin]++;
+			if($bin === 'less')
+			{
+				$this->_less++;
+			}
+			else
+			{
+				$this->_result[$bin]++;
+			}
 		}
 	}
 
@@ -96,7 +107,9 @@ class Histogram {
 	{
 		$bins = array_keys($result);
 		$this->setBins($bins);
-		$this->_result = $result;
+		$this->_less = $result['less'];
+		unset($result['less']);
+		$this->_result = array_values($result);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -109,7 +122,12 @@ class Histogram {
 	 */
 	public function getResult()
 	{
-		return $this->_result;
+		$result['less'] = $this->_less;
+		for($i = 0; $i < $this->_nbins; ++$i)
+		{
+			$result[(string)$this->_bins[$i]] = $this->_result[$i];
+		}
+		return $result;
 	}
 	
 	//-----------------------------------------------------------------------------
@@ -125,7 +143,7 @@ class Histogram {
 			// If this is the last bin, and we still haven't found a bin larger than x, then store it here
 			if($i == $this->_nbins - 1 && $x >= $bin)
 			{
-				return $bin;
+				return $i;
 			}
 			// Otherwise, if x is less than the left endpoint,
 			else if ($x < $bin)
@@ -138,7 +156,7 @@ class Histogram {
 				// otherwise, it should be stored in the previous bin
 				else
 				{
-					$bin = $this->_bins[$i - 1];
+					$bin = $i - 1;
 				}
 				return $bin;
 			}
