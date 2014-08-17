@@ -6,9 +6,25 @@ Data Miner is a set of data mining tools written in PHP. It is designed for easy
 
 You can install Data Miner very easily with [Composer](https://getcomposer.org/).
 
-Include this in your composer.json and then run composer install:
+Include this in your composer.json file's require section:
 
-"thominj/data-miner": "1.*"
+```
+"require": {
+        "thominj/data-miner": "1.*"
+    }
+```
+
+Then run:
+
+```
+composer install
+```
+
+Finally, include the composer autoload file in your project:
+
+```php
+require_once(PATH_TO_VENDOR_DIR.'/autoload.php');
+```
 
 ##Histogram
 
@@ -21,7 +37,7 @@ For example:
 $bins = [ 0, 1, 2, 3];
 $data = [ -1, 0, 0.5, 1, 3, 4 ];
 
-$histogram = new Histogram($bins, $data);
+$histogram = new thominj\DataMiner\Histogram($bins, $data);
 $result = $histogram->getResult();
 
 print_r($result);
@@ -47,14 +63,14 @@ You can set the bins and add data in lots of different ways. Each of these will 
 
 ```php
 // Set bins and add data in the constructor
-$histogram = new Histogram($bins, $data);
+$histogram = new thominj\DataMiner\Histogram($bins, $data);
 
 // Set bins in the constructor, add data later
-$histogram = new Histogram($bins);
+$histogram = new thominj\DataMiner\Histogram($bins);
 $histogram->addData($data);
 
 // Set bins and add data after instancing the histogram
-$histogram = new Histogram();
+$histogram = new thominj\DataMiner\Histogram();
 $histogram->setBins($bins);
 $histogram->addData($data);
 ```
@@ -65,7 +81,7 @@ You can also run in online mode to repeatedly add data sets. Histogram will sort
 
 ```php
 // Online mode
-$histogram = new Histogram($bins);
+$histogram = new thominj\DataMiner\Histogram($bins);
 
 // Add some data
 $histogram->addData($data);
@@ -114,7 +130,7 @@ $old_result = array(
   3 => 4
 );
 
-$histogram = new Histogram();
+$histogram = new thominj\DataMiner\Histogram();
 $histogram->preload($old_result);
 $histogram->addData($data);
 
