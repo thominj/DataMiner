@@ -51,14 +51,14 @@ class DataBinner {
 		// Remove the 'less' bin if it exists so it doesn't mess up sorting.
 		$less_bin = array_search('less', $bins, TRUE);
 		if($less_bin !== FALSE) unset($bins[$less_bin]);
-		
+
 		sort($bins);	// Sort bins and re-key
 		$this->_bins = $bins;
 		$this->_nbins = count($bins);
-		
-		// Set up results array using bins as keys
-		array_unshift($bins, 'less');	// prepend the 'less' bin
-		$result = array_fill_keys($bins, array('n' => 0, 'mean' => null, 's' => null));
+
+		// Set up results array
+		$result = array_fill(0, $this->_nbins, array('n' => 0, 'mean' => null, 's' => null));
+		$result['less'] = array('n' => 0, 'mean' => null, 's' => null);	// prepend the 'less' bin
 		$this->_result = $result;
 	}
 	
@@ -109,13 +109,11 @@ class DataBinner {
 		$bins = array_keys($result_array);
 		$this->setBins($bins);
 
-		foreach($result_array as $bin => $result )
+		$this->_result['less'] = $this->_convertFromDisplayResult($result_array['less']);
+		for($i = 0; $i < $this->_nbins; ++$i)
 		{
-			$this->_result[$bin]['mean'] = $result['mean'];
-			$n = $this->_result[$bin]['n'] = $result['n'];
-			
-			// Convert the variance back to S
-			$this->_result[$bin]['s'] = $result['var'] * ($n-1);
+			$bin = (string)$this->_bins[$i];
+			$this->_result[$i] = $this->_convertFromDisplayResult($result_array[$bin]);
 		}
 	}
 
@@ -130,24 +128,65 @@ class DataBinner {
 	 */
 	public function getResult()
 	{
-		foreach($this->_result as $bin => $result)
+		$new_result['less'] = $this->_convertToDisplayResult($this->_result['less']);
+
+		for($i = 0; $i < $this->_nbins; ++$i)
 		{
-			$new_result[$bin]['mean'] = $result['mean'];
-			$new_result[$bin]['n'] = $result['n'];
-			if($result['n'] - 1 == 0)
-			{
-				$new_result[$bin]['var'] = $result['s'];
-			}
-			else
-			{
-				$new_result[$bin]['var'] = $result['s'] / ($result['n'] - 1);
-			}
+			$bin = (string)$this->_bins[$i];
+			$new_result[$bin] = $this->_convertToDisplayResult($this->_result[$i]);
 		}
 		return $new_result;
 	}
 	
 	//-----------------------------------------------------------------------------
 	
+	/**
+	 * Converts the result to the display format (mostly we are just converting
+	 * s to var)
+	 * 
+	 * @param array $result
+	 * @return array $new_result
+	 */
+	private function _convertToDisplayResult($result)
+	{
+		// Mean and N are the same
+		$new_result['mean'] = $result['mean'];
+		$new_result['n'] = $result['n'];
+		
+		// Convert S to var
+		if($result['n'] - 1 == 0)
+		{
+			$new_result['var'] = $result['s'];
+		}
+		else
+		{
+			$new_result['var'] = $result['s'] / ($result['n'] - 1);
+		}
+		return $new_result;
+	}
+	
+	//-----------------------------------------------------------------------------
+	
+	private function _convertFromDisplayResult($result)
+	{
+		// Mean and N are the same
+		$new_result['mean'] = $result['mean'];
+		$new_result['n'] = $result['n'];
+		
+		// Convert var to S
+		$new_result['s'] = $result['var'] * ($result['n'] - 1);
+
+		return $new_result;
+	}
+	
+	//-----------------------------------------------------------------------------
+	
+	/**
+	 * Sort a value into the appropriate bin.
+	 * 
+	 * @param double $x
+	 * @return int|string 'less' or a bin index
+	 */
 	private function _mapToBin($x)
 	{
 		// Loop over bins array
@@ -159,7 +198,7 @@ class DataBinner {
 			// If this is the last bin, and we still haven't found a bin larger than x, then store it here
 			if($i == $this->_nbins - 1 && $x >= $bin)
 			{
-				return $bin;
+				return $i;
 			}
 			// Otherwise, if x is less than the left endpoint,
 			else if ($x < $bin)
@@ -172,7 +211,7 @@ class DataBinner {
 				// otherwise, it should be stored in the previous bin
 				else
 				{
-					$bin = $this->_bins[$i - 1];
+					$bin = $i - 1;
 				}
 				return $bin;
 			}
@@ -210,7 +249,7 @@ class DataBinner {
 	 */
 	private function _newS($old_s, $old_mean, $current_mean, $x)
 	{
-		// If there is no old_mean, then this is the first value, and it is equal to the zero.
+		// If there is no old_mean, then this is the first value, and it is equal to zero.
 		if($old_mean === null)
 		{
 			return 0.0;
