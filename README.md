@@ -1,6 +1,14 @@
 #DataMiner
 
-A set of tools for common data mining operations in PHP.
+Data Miner is a set of data mining tools written in PHP. It is designed for easy integration with existing websites.
+
+##Installation
+
+You can install Data Miner very easily with [Composer](https://getcomposer.org/).
+
+Include this in your composer.json and then run composer install:
+
+"thominj/data-miner": "1.*"
 
 ##Histogram
 
