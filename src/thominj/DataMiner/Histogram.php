@@ -53,6 +53,9 @@ class Histogram {
 		// Remove the 'less' bin if it exists so it doesn't mess up sorting.
 		$less_bin = array_search('less', $bins, TRUE);
 		if($less_bin !== FALSE) unset($bins[$less_bin]);
+		
+		// Convert bins to float if necessary so we aren't doing casting
+		// during processing
 		foreach($bins as &$bin)
 		{
 			$bin = (float)$bin;
